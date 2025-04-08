@@ -27,31 +27,49 @@ describe "Posters API", type: :request do
 
     expect(response).to be_successful
 
-    posters = JSON.parse(response.body, symbolize_names: true)
+    response_body = JSON.parse(response.body, symbolize_names: true)
+    posters = response_body[:data]
 
+    expect(posters).to be_an(Array)
     expect(posters.count).to eq(3)
 
     posters.each do |poster|
       expect(poster).to have_key(:id)
-      expect(poster[:id]).to be_an(Integer)
+      expect(poster[:id]).to be_a(String)
 
-      expect(poster).to have_key(:name)
-      expect(poster[:name]).to be_a(String)
+      expect(poster).to have_key(:type)
+      expect(poster[:type]).to eq("poster")
+      
+      expect(poster).to have_key(:attributes)
 
-      expect(poster).to have_key(:description)
-      expect(poster[:description]).to be_a(String)
+      attrs = poster[:attributes]
 
-      expect(poster).to have_key(:price)
-      expect(poster[:price]).to be_a(Float)
+      expect(attrs).to have_key(:name)
+      expect(attrs[:name]).to be_a(String)
 
-      expect(poster).to have_key(:year)
-      expect(poster[:year]).to be_a(Integer)
+      expect(attrs).to have_key(:description)
+      expect(attrs[:description]).to be_a(String)
 
-      expect(poster).to have_key(:vintage)
-      expect(poster[:vintage]).to be_a(Boolean)
+      expect(attrs).to have_key(:price)
+      expect(attrs[:price]).to be_a(Float).or be_a(Integer)
 
-      expect(poster).to have_key(:img_url)
-      expect(poster[:img_url]).to be_a(String)
+      expect(attrs).to have_key(:year)
+      expect(attrs[:year]).to be_a(Integer)
+
+      expect(attrs).to have_key(:vintage)
+      expect([true, false]).to include(attrs[:vintage])
+
+      expect(attrs).to have_key(:img_url)
+      expect(attrs[:img_url]).to be_a(String)
     end
+  end
+
+  it "returns an empty array when no posters exist" do
+    get '/api/v1/posters'
+
+    expect(response).to be_successful
+
+    response_body = JSON.parse(response.body, symbolize_names: true)
+    expect(response_body[:data]).to eq([])
   end
 end
