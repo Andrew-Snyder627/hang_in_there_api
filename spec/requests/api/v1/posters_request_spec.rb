@@ -117,4 +117,31 @@ describe "Posters API", type: :request do
     error_body = JSON.parse(response.body, symbolize_names: true)
     expect(error_body).to have_key(:error)
   end
+
+  it "deletes a poster and returns a 204 error with no body" do
+    poster =  Poster.create(
+      name: "DELETE ME",
+      description: "Will be gone.",
+      price: 10.00,
+      year: 2025,
+      vintage: false,
+      img_url:  "https://plus.unsplash.com/premium_photo-1661293818249-fddbddf07a5d"
+    )
+
+    delete "/api/v1/posters/#{poster.id}"
+
+    expect(response).to have_http_status(:no_content)
+    expect(response.body).to be_empty
+    expect(Poster.find_by(id: poster.id)).to be_nil
+  end
+
+  it "returns 404 when trying to delete a non-existent poster" do
+    delete "/api/v1/posters/9999999"
+
+    expect(response).to have_http_status(:not_found)
+
+    error_body = JSON.parse(response.body, symbolize_names: true)
+    expect(error_body).to have_key(:error)
+    expect(error_body[:error]).to eq("Poster not found")
+  end
 end
