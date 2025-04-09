@@ -62,6 +62,10 @@ describe "Posters API", type: :request do
       expect(attrs).to have_key(:img_url)
       expect(attrs[:img_url]).to be_a(String)
     end
+
+    expect(response_body).to have_key(:meta)
+    expect(response_body[:meta]).to be_a(Hash)
+    expect(response_body[:meta][:count]).to eq(3)
   end
 
   it "returns an empty array when no posters exist" do
@@ -71,6 +75,8 @@ describe "Posters API", type: :request do
 
     response_body = JSON.parse(response.body, symbolize_names: true)
     expect(response_body[:data]).to eq([])
+    expect(response_body).to have_key(:meta)
+    expect(response_body[:meta][:count]).to eq(0)
   end
 
   it "returns a single poster in the required format" do
