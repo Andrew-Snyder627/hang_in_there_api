@@ -72,4 +72,49 @@ describe "Posters API", type: :request do
     response_body = JSON.parse(response.body, symbolize_names: true)
     expect(response_body[:data]).to eq([])
   end
+
+  it "returns a single poster in the required format" do
+    poster =  Poster.create(
+      name: "REGRET",
+      description: "Hard work rarely pays off.",
+      price: 89.00,
+      year: 2018,
+      vintage: true,
+      img_url:  "https://plus.unsplash.com/premium_photo-1661293818249-fddbddf07a5d"
+    )
+
+    get "/api/v1/posters/#{poster.id}"
+
+    expect(response).to be_successful
+
+    response_body = JSON.parse(response.body, symbolize_names: true)
+
+    data = response_body[:data]
+
+    expect(data).to have_key(:id)
+    expect(data[:id]).to eq(poster.id.to_s)
+
+    expect(data).to have_key(:type)
+    expect(data[:type]).to eq("poster")
+
+    expect(data).to have_key(:attributes)
+
+    attrs = data[:attributes]
+
+    expect(attrs[:name]).to eq("REGRET")
+    expect(attrs[:description]).to eq("Hard work rarely pays off.")
+    expect(attrs[:price]).to eq(89.00)
+    expect(attrs[:year]).to eq(2018)
+    expect(attrs[:vintage]).to eq(true)
+    expect(attrs[:img_url]).to eq("https://plus.unsplash.com/premium_photo-1661293818249-fddbddf07a5d")
+  end
+
+  it "returns a 404 if the poster is not found" do
+    get "/api/v1/posters/999999"
+
+    expect(response.status).to eq(404)
+
+    error_body = JSON.parse(response.body, symbolize_names: true)
+    expect(error_body).to have_key(:error)
+  end
 end

@@ -5,7 +5,12 @@ class Api::V1::PostersController < ApplicationController
   end
 
   def show
-    poster = Poster.find(params[:id])
-    render json: PosterSerializer.format_poster(poster)
+    poster = Poster.find_by(id: params[:id])
+
+    if poster
+      render json: PosterSerializer.format_poster(poster)
+    else
+      render json: { error: "Poster not found" }, status: :not_found
+    end
   end
 end
