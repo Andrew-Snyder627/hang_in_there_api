@@ -144,4 +144,27 @@ describe "Posters API", type: :request do
     expect(error_body).to have_key(:error)
     expect(error_body[:error]).to eq("Poster not found")
   end
+
+  it "can create a new poster" do
+    poster_params = {
+      "name": "DEFEAT",
+      "description": "It's too late to start now.",
+      "price": 35.00,
+      "year": 2023,
+      "vintage": false,
+      "img_url":  "https://unsplash.com/photos/brown-brick-building-with-red-car-parked-on-the-side-mMV6Y0ExyIk"
+    }
+    headers = { "CONTENT_TYPE" => "application/json" }
+
+    post "/api/v1/posters", headers: headers, params: JSON.generate(poster: poster_params)
+    created_poster = Poster.last
+
+    expect(response).to be_successful
+    expect(created_poster.name).to eq(poster_params[:name])
+    expect(created_poster.description).to eq(poster_params[:description])
+    expect(created_poster.price).to eq(poster_params[:price])
+    expect(created_poster.year).to eq(poster_params[:year])
+    expect(created_poster.vintage).to eq(poster_params[:vintage])
+    expect(created_poster.img_url).to eq(poster_params[:img_url])
+  end
 end
