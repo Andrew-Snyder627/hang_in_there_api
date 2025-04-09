@@ -167,6 +167,7 @@ describe "Posters API", type: :request do
     expect(created_poster.vintage).to eq(poster_params[:vintage])
     expect(created_poster.img_url).to eq(poster_params[:img_url])
   end
+
   it "can update an existing poster" do
     id = Poster.create("name": "DEFEAT",
       "description": "It's too late to start now.",
