@@ -1,19 +1,15 @@
 class Api::V1::PostersController < ApplicationController
   def index
-    posters = Poster.all
-    render json: {
-      data: PosterSerializer.format_posters(posters)[:data],
-      meta: {
-        count: posters.count
-      }
-    }
+    posters = Poster.sorted_by(params[:sort])
+
+    render json: PosterSerializer.new(posters, meta: { count: posters.count }).serializable_hash
   end
 
   def show
     poster = Poster.find_by(id: params[:id])
 
     if poster
-      render json: PosterSerializer.format_poster(poster)
+      render json: PosterSerializer.new(poster).serializable_hash
     else
       render json: { error: "Poster not found" }, status: :not_found
     end
@@ -31,11 +27,14 @@ class Api::V1::PostersController < ApplicationController
   end
   
   def create
-    render json: Poster.create(poster_params)
+    poster = Poster.create(poster_params)
+    render json: PosterSerializer.new(poster).serializable_hash
   end
 
   def update
-    render json: Poster.update(params[:id], poster_params)
+    poster = Poster.find_by(id: params[:id])
+    poster.update(poster_params)
+    render json: PosterSerializer.new(poster).serializable_hash
   end
 
   private
