@@ -1,6 +1,7 @@
 class Api::V1::PostersController < ApplicationController
   def index
-    posters = Poster.all
+    posters = Poster.sorted_by(params[:sort])
+    
     render json: {
       data: PosterSerializer.format_posters(posters)[:data],
       meta: {
